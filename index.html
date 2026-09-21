@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logic Gates — an interactive guide by Tr. Wai Lin Htet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  /* ---------- tokens ---------- */
+  :root{
+    --paper:#F3F1E9;
+    --paper-raised:#FBFAF5;
+    --ink:#181B17;
+    --ink-soft:#565A50;
+    --trace:#2F6B4C;
+    --trace-deep:#1F4A35;
+    --signal-on:#C97A1C;
+    --signal-on-glow:#E9A34B;
+    --signal-off:#B9B4A6;
+    --line:#DAD5C6;
+    --line-strong:#C7C1AF;
+    --focus:#1F4A35;
+
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#161810;
+      --paper-raised:#1E2118;
+      --ink:#EFEDE3;
+      --ink-soft:#A9A798;
+      --trace:#6FBE93;
+      --trace-deep:#8FD4AE;
+      --signal-on:#F0A93F;
+      --signal-on-glow:#F6C077;
+      --signal-off:#4A4C42;
+      --line:#33352A;
+      --line-strong:#42453A;
+      --focus:#8FD4AE;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#161810;
+    --paper-raised:#1E2118;
+    --ink:#EFEDE3;
+    --ink-soft:#A9A798;
+    --trace:#6FBE93;
+    --trace-deep:#8FD4AE;
+    --signal-on:#F0A93F;
+    --signal-on-glow:#F6C077;
+    --signal-off:#4A4C42;
+    --line:#33352A;
+    --line-strong:#42453A;
+    --focus:#8FD4AE;
+  }
+
+  html{ scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth; }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  ::selection{ background:var(--signal-on); color:#1A1200; }
+  :focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+
+  h1,h2,h3{
+    font-family:"Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+    font-weight:500;
+    line-height:1.12;
+    margin:0;
+    color:var(--ink);
+  }
+  code, .mono{ font-family:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+
+  a{ color:inherit; }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 24px; }
+
+  @media (min-width:1200px){
+    .wrap{ max-width:1500px; padding:0 56px; }
+  }
+  @media (min-width:1600px){
+    .wrap{ max-width:1760px; padding:0 72px; }
+  }
+
+  /* ---------- nav ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  .topbar .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+  }
+  .brand-group{ display:flex; align-items:center; gap:12px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:"Fraunces",serif; font-size:1.1rem; }
+  .brand-mark{ width:22px; height:22px; flex:none; }
+  .author-badge{
+    font-family:"IBM Plex Mono",monospace; font-size:.78rem;
+    padding:3px 8px; border-radius:12px;
+    background:color-mix(in srgb, var(--trace) 15%, transparent);
+    color:var(--trace-deep); border:1px solid color-mix(in srgb, var(--trace) 30%, transparent);
+  }
+  .navlinks{ display:flex; align-items:center; gap:22px; font-size:.92rem; color:var(--ink-soft); }
+  .navlinks a{ text-decoration:none; padding:4px 2px; border-bottom:1px solid transparent; }
+  .navlinks a:hover{ color:var(--ink); border-color:var(--line-strong); }
+  @media (max-width:720px){ 
+    .navlinks a span{ display:none; }
+    .author-badge{ display:none; }
+  }
+
+  .theme-toggle{
+    position:relative;
+    width:52px; height:28px; flex:none;
+    border-radius:14px;
+    border:1px solid var(--line-strong);
+    background:var(--paper);
+    cursor:pointer;
+    padding:0;
+  }
+  .theme-toggle .knob{
+    position:absolute; top:2px; left:2px;
+    width:22px; height:22px; border-radius:50%;
+    background:var(--ink); color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; line-height:1;
+    transition:left .18s ease, background .18s ease;
+  }
+  :root[data-theme="dark"] .theme-toggle .knob{ left:26px; background:var(--signal-on); }
+  .theme-toggle:hover{ border-color:var(--trace); }
+
+  /* ---------- hero ---------- */
+  .hero{ padding:56px 0 8px; }
+  .hero-meta{
+    display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .eyebrow{
+    font-size:.82rem; color:var(--trace-deep); font-family:"IBM Plex Mono",monospace;
+  }
+  .instructor-tag{
+    font-size:.82rem; font-family:"IBM Plex Mono",monospace; color:var(--ink-soft);
+    display:flex; align-items:center; gap:6px;
+  }
+  .hero h1{ font-size:clamp(2.1rem, 5vw, 3rem); max-width:14ch; }
+  .hero p.lede{
+    margin-top:16px; max-width:58ch; color:var(--ink-soft); font-size:1.05rem;
+  }
+
+  section{ padding:52px 0; border-top:1px solid var(--line); }
+  section:first-of-type{ border-top:none; }
+  .section-head{ margin-bottom:28px; max-width:60ch; }
+  .section-head h2{ font-size:1.7rem; }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  /* ---------- simulator ---------- */
+  .sim{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:28px;
+  }
+  .gate-tabs{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;
+  }
+  .gate-tab{
+    font-family:"IBM Plex Mono",monospace; font-size:.85rem;
+    background:transparent; border:1px solid var(--line-strong);
+    color:var(--ink-soft); padding:7px 14px; border-radius:3px;
+    cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+  }
+  .gate-tab:hover{ border-color:var(--trace); color:var(--ink); }
+  .gate-tab[aria-pressed="true"]{
+    background:var(--trace-deep); border-color:var(--trace-deep); color:var(--paper-raised);
+  }
+
+  .sim-body{
+    display:grid; grid-template-columns:1.2fr 1fr; gap:32px; align-items:start;
+  }
+  @media (max-width:700px){ .sim-body{ grid-template-columns:1fr; } }
+
+  .gate-svg-wrap{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:8px;
+  }
+  .gate-svg-wrap svg{ display:block; width:100%; height:auto; }
+
+  .wire{ stroke:var(--signal-off); stroke-width:3; fill:none; transition:stroke .15s; }
+  .wire.on{ stroke:var(--signal-on); }
+  .gate-body{ fill:var(--paper-raised); stroke:var(--ink); stroke-width:2.5; }
+  .bubble{ fill:var(--paper); stroke:var(--ink); stroke-width:2.5; }
+  .dot{ fill:var(--signal-off); transition:fill .15s; }
+  .dot.on{ fill:var(--signal-on); }
+  .gate-label-x{ font-family:"IBM Plex Mono",monospace; font-size:13px; fill:var(--ink-soft); }
+
+  .switches{ display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .switch{
+    display:flex; align-items:center; gap:10px;
+    border:1px solid var(--line-strong); border-radius:3px;
+    padding:9px 12px; background:var(--paper);
+  }
+  .switch .lbl{ font-family:"IBM Plex Mono",monospace; font-size:.85rem; color:var(--ink-soft); }
+  .switch button{
+    font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.95rem;
+    width:34px; height:30px; border-radius:3px; border:1px solid var(--line-strong);
+    background:var(--paper-raised); color:var(--ink); cursor:pointer;
+  }
+  .switch button[data-on="true"]{
+    background:var(--signal-on); border-color:var(--signal-on); color:#1A1200;
+  }
+
+  .expr{
+    font-family:"IBM Plex Mono",monospace; font-size:.95rem;
+    background:var(--paper); border:1px solid var(--line); border-radius:3px;
+    padding:14px 16px; margin-bottom:18px;
+  }
+  .expr .row{ display:flex; justify-content:space-between; gap:12px; padding:4px 0; }
+  .expr .row + .row{ border-top:1px dashed var(--line); }
+  .expr .k{ color:var(--ink-soft); }
+
+  .desc{ font-size:.95rem; color:var(--ink-soft); margin-bottom:18px; }
+  .desc strong{ color:var(--ink); font-weight:600; }
+
+  table.truth{
+    width:100%; border-collapse:collapse; font-family:"IBM Plex Mono",monospace; font-size:.88rem;
+  }
+  table.truth th, table.truth td{
+    border:1px solid var(--line); padding:7px 10px; text-align:center;
+  }
+  table.truth th{ background:var(--paper); color:var(--ink-soft); font-weight:500; }
+  table.truth tr.active td{ background:color-mix(in srgb, var(--signal-on) 22%, var(--paper-raised)); font-weight:600; }
+
+  /* ---------- reference grid ---------- */
+  .grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+  }
+  @media (max-width:760px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .grid{ grid-template-columns:1fr; } }
+
+  .card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:4px;
+    padding:18px;
+  }
+  .card h3{ font-size:1.1rem; margin-bottom:4px; }
+  .card .sub{ font-size:.82rem; color:var(--ink-soft); font-family:"IBM Plex Mono",monospace; margin-bottom:10px; }
+  .card svg{ width:100%; height:auto; margin-bottom:10px; }
+  .card p{ font-size:.9rem; color:var(--ink-soft); margin:0 0 10px; }
+  .card table.truth{ font-size:.8rem; }
+  .card table.truth th, .card table.truth td{ padding:5px 6px; }
+  .card .boolean{ margin-top:8px; font-family:"IBM Plex Mono",monospace; font-size:.82rem; color:var(--trace-deep); }
+
+  /* ---------- practice ---------- */
+  .quiz{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:4px;
+    padding:28px; max-width:560px;
+  }
+  .quiz-meta{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px; }
+  .quiz-score{ font-family:"IBM Plex Mono",monospace; font-size:.85rem; color:var(--ink-soft); }
+  .quiz-q{ font-size:1.15rem; margin-bottom:6px; }
+  .quiz-inputs{ font-family:"IBM Plex Mono",monospace; font-size:1.5rem; margin:14px 0 22px; letter-spacing:.02em; }
+  .quiz-inputs .val{ display:inline-block; min-width:1.2em; text-align:center; padding:2px 6px; border-radius:3px; background:var(--paper); border:1px solid var(--line); margin-right:4px;}
+  .quiz-answers{ display:flex; gap:10px; margin-bottom:16px; }
+  .quiz-answers button{
+    flex:1; font-family:"IBM Plex Mono",monospace; font-size:1.1rem; font-weight:600;
+    padding:14px; border-radius:3px; border:1px solid var(--line-strong);
+    background:var(--paper); color:var(--ink); cursor:pointer; transition:transform .1s;
+  }
+  .quiz-answers button:hover{ border-color:var(--trace); }
+  .quiz-answers button:active{ transform:scale(.97); }
+  .quiz-feedback{ min-height:44px; font-size:.92rem; margin-bottom:14px; }
+  .quiz-feedback.correct{ color:var(--trace-deep); }
+  .quiz-feedback.wrong{ color:var(--signal-on); }
+  .quiz-next{
+    font-family:"IBM Plex Mono",monospace; font-size:.85rem;
+    background:var(--ink); color:var(--paper-raised); border:none;
+    padding:10px 18px; border-radius:3px; cursor:pointer;
+  }
+  .quiz-next:disabled{ opacity:.35; cursor:default; }
+
+  /* ---------- exam practice ---------- */
+  .exam-list{ display:flex; flex-direction:column; gap:12px; }
+  .exam-item{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:4px;
+    overflow:hidden;
+  }
+  .exam-q{
+    width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    padding:18px 20px; display:flex; justify-content:space-between; align-items:baseline;
+    gap:16px; color:var(--ink); font:inherit;
+  }
+  .exam-q .qnum{
+    font-family:"IBM Plex Mono",monospace; color:var(--trace-deep); font-weight:600;
+    flex:none; margin-right:10px;
+  }
+  .exam-q .qtext{ flex:1; }
+  .exam-q .marks{
+    font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink-soft); flex:none;
+  }
+  .exam-body{
+    max-height:0; overflow:hidden; transition:max-height .25s ease;
+    border-top:1px solid var(--line);
+  }
+  .exam-item.open .exam-body{ max-height:900px; }
+  .exam-scenario{ padding:0 20px 4px; font-size:.92rem; color:var(--ink-soft); }
+  .exam-scenario table{
+    width:100%; border-collapse:collapse; font-family:"IBM Plex Mono",monospace; font-size:.82rem; margin:12px 0;
+  }
+  .exam-scenario th, .exam-scenario td{ border:1px solid var(--line); padding:5px 8px; text-align:left; }
+  .exam-answer{
+    margin:14px 20px 20px; padding:14px 16px;
+    background:var(--paper); border:1px dashed var(--line-strong); border-radius:3px;
+    font-size:.9rem; display:none;
+  }
+  .exam-answer.shown{ display:block; }
+  .exam-answer table.truth{
+    width:auto; border-collapse:collapse; font-family:"IBM Plex Mono",monospace; font-size:.82rem; margin-top:8px;
+  }
+  .exam-answer table.truth th, .exam-answer table.truth td{ border:1px solid var(--line); padding:5px 9px; text-align:center; }
+  .exam-answer .expr-line{ font-family:"IBM Plex Mono",monospace; margin:4px 0; }
+  .reveal-btn{
+    margin:0 20px 18px; font-family:"IBM Plex Mono",monospace; font-size:.82rem;
+    background:transparent; border:1px solid var(--line-strong); color:var(--ink-soft);
+    padding:8px 14px; border-radius:3px; cursor:pointer;
+  }
+  .reveal-btn:hover{ border-color:var(--trace); color:var(--ink); }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line); padding:32px 0 calc(32px + env(safe-area-inset-bottom,0px));
+    color:var(--ink-soft); font-size:.85rem;
+  }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:center; }
+  footer .credit{ font-family:"IBM Plex Mono",monospace; }
+
+  /* ---------- classroom-monitor sizing ---------- */
+  html{ font-size:clamp(18px, 1.35vw + 12px, 23px); }
+  .gate-tab{ font-size:1.05rem; padding:9px 18px; }
+  .switch{ padding:11px 15px; }
+  .switch .lbl{ font-size:1.05rem; }
+  .switch button{ width:44px; height:38px; font-size:1.15rem; }
+  .expr{ font-size:1.1rem; padding:18px 20px; }
+  .desc{ font-size:1.08rem; }
+  table.truth{ font-size:1.02rem; }
+  table.truth th, table.truth td{ padding:9px 13px; }
+  .card .sub{ font-size:.95rem; }
+  .card p{ font-size:1.02rem; }
+  .card table.truth{ font-size:.95rem; }
+  .card .boolean{ font-size:.95rem; }
+  .quiz-q{ font-size:1.3rem; }
+  .quiz-inputs{ font-size:1.8rem; }
+  .quiz-answers button{ font-size:1.3rem; padding:16px; }
+  .quiz-feedback{ font-size:1.05rem; }
+  .exam-q .qtext{ font-size:1.08rem; }
+  .exam-q .marks{ font-size:.95rem; }
+  .exam-scenario{ font-size:1.05rem; }
+  .exam-answer{ font-size:1.05rem; }
+  .gate-label-x{ font-size:16px; }
+  .navlinks{ font-size:1.05rem; }
+  footer{ font-size:1rem; }
+  @media (max-width:600px){ html{ font-size:17px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand-group">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8v8h5.5L14 20V4L7.5 8H2Z" fill="var(--trace)"/>
+          <path d="M17 9a4 4 0 0 1 0 6" stroke="var(--trace)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Logic Gates
+      </div>
+      <span class="author-badge">by Tr. Wai Lin Htet</span>
+    </div>
+    <nav class="navlinks">
+      <a href="#simulate">Simulator</a>
+      <a href="#reference">Gate <span>reference</span></a>
+      <a href="#practice">Practice</a>
+      <a href="#exam">Exam <span>questions</span></a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch between light and dark" aria-pressed="false">
+        <span class="knob" id="themeKnob">☀</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="hero wrap">
+  <div class="hero-meta">
+    <span class="eyebrow">Boolean logic · IGCSE Computer Science</span>
+    <span class="instructor-tag">✦ Developed by Tr. Wai Lin Htet</span>
+  </div>
+  <h1>Six gates, one idea: on or off.</h1>
+  <p class="lede">Every logic gate takes binary inputs and produces a binary output. Flip the switches below and watch the signal travel through each gate — then test yourself in the practice section.</p>
+</div>
+
+<section id="simulate">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Try a gate</h2>
+      <p>Choose a gate, toggle its inputs, and watch the output and truth table respond live.</p>
+    </div>
+
+    <div class="sim">
+      <div class="gate-tabs" role="tablist" aria-label="Choose a logic gate"></div>
+
+      <div class="sim-body">
+        <div class="sim-stage">
+          <div class="gate-svg-wrap">
+            <svg id="gateSvg" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logic gate diagram"></svg>
+          </div>
+          <div class="switches" id="switches"></div>
+        </div>
+
+        <div class="sim-readout">
+          <div class="expr" id="exprBox"></div>
+          <p class="desc" id="descBox"></p>
+          <table class="truth" id="truthTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Gate reference</h2>
+      <p>The six standard gates, their symbols, and both ways of writing them: logic notation and Boolean algebra.</p>
+    </div>
+    <div class="grid" id="refGrid"></div>
+  </div>
+</section>
+
+<section id="practice">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Practice</h2>
+      <p>You're given a gate and its input values. Work out the output before you click.</p>
+    </div>
+
+    <div class="quiz">
+      <div class="quiz-meta">
+        <span class="quiz-q" id="quizGateName">—</span>
+        <span class="quiz-score" id="quizScore">0 / 0 correct</span>
+      </div>
+      <div class="quiz-inputs" id="quizInputs"></div>
+      <div class="quiz-answers">
+        <button id="ans0" data-val="0">Output = 0</button>
+        <button id="ans1" data-val="1">Output = 1</button>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></div>
+      <button class="quiz-next" id="quizNext">Next question →</button>
+    </div>
+  </div>
+</section>
+
+<section id="exam">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Exam-style questions</h2>
+      <p>Ten questions in the style of Cambridge IGCSE Computer Science (0478). Work each one out on paper, then reveal the answer to check.</p>
+    </div>
+    <div class="exam-list" id="examList"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Based on IGCSE Computer Science — Chapter 10, Boolean logic.</span>
+    <span class="credit">Created &amp; Curated by <strong>Tr. Wai Lin Htet</strong></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- gate definitions ---------------- */
+  const GATES = {
+    NOT:  { inputs:1, fn:(a,b)=> a?0:1, symbol:"NOT", bool:"X = Ā", logic:"X = NOT A", desc:"The output is <strong>1</strong> if the input is <strong>0</strong>." },
+    AND:  { inputs:2, fn:(a,b)=> (a&&b)?1:0, symbol:"AND", bool:"X = A · B", logic:"X = A AND B", desc:"The output is <strong>1</strong> only if both inputs are <strong>1</strong>." },
+    OR:   { inputs:2, fn:(a,b)=> (a||b)?1:0, symbol:"OR",  bool:"X = A + B", logic:"X = A OR B", desc:"The output is <strong>1</strong> if either input, or both, is <strong>1</strong>." },
+    NAND: { inputs:2, fn:(a,b)=> (a&&b)?0:1, symbol:"NAND", bool:"X = A·B̄", logic:"X = A NAND B", desc:"The output is <strong>1</strong> unless both inputs are <strong>1</strong>." },
+    NOR:  { inputs:2, fn:(a,b)=> (a||b)?0:1, symbol:"NOR", bool:"X = A+B̄", logic:"X = A NOR B", desc:"The output is <strong>1</strong> only if neither input is <strong>1</strong>." },
+    XOR:  { inputs:2, fn:(a,b)=> (a!==b)?1:0, symbol:"XOR", bool:"X = A⊕B", logic:"X = A XOR B", desc:"The output is <strong>1</strong> if the inputs are <strong>different</strong>." }
+  };
+  const ORDER = ["NOT","AND","OR","NAND","NOR","XOR"];
+
+  /* ---------------- SVG shape builders ---------------- */
+  function wire(x1,y1,x2,y2,id){
+    return `<path class="wire" id="${id}" d="M${x1},${y1} L${x2},${y2}"/>`;
+  }
+  function dot(x,y,id){
+    return `<circle class="dot" id="${id}" cx="${x}" cy="${y}" r="5"/>`;
+  }
+  function labels(hasB){
+    let s = `<text class="gate-label-x" x="20" y="${hasB?68:104}">A</text>`;
+    if(hasB) s += `<text class="gate-label-x" x="20" y="134">B</text>`;
+    s += `<text class="gate-label-x" x="292" y="${hasB?96:96}">X</text>`;
+    return s;
+  }
+
+  function svgFor(type){
+    const g = GATES[type];
+    const twoIn = g.inputs === 2;
+    const yA = twoIn ? 70 : 100;
+    const yB = 130;
+
+    let wires = "";
+    let body = "";
+
+    if(type === "NOT"){
+      wires += wire(20,100,110,100,"wireA");
+      wires += dot(45,100,"dotA");
+      body += `<path class="gate-body" d="M110,60 L110,140 L190,100 Z"/>`;
+      body += `<circle class="bubble" cx="202" cy="100" r="10"/>`;
+      wires += wire(212,100,300,100,"wireOut");
+      wires += dot(258,100,"dotOut");
+    }
+    else if(type === "AND" || type === "NAND"){
+      wires += wire(20,yA,110,yA,"wireA");
+      wires += wire(20,yB,110,yB,"wireB");
+      wires += dot(45,yA,"dotA");
+      wires += dot(45,yB,"dotB");
+      body += `<path class="gate-body" d="M110,60 L110,140 L150,140 A40,40 0 0 0 150,60 Z"/>`;
+      let outStart = 190;
+      if(type === "NAND"){
+        body += `<circle class="bubble" cx="200" cy="100" r="10"/>`;
+        outStart = 210;
+      }
+      wires += wire(outStart,100,300,100,"wireOut");
+      wires += dot(255,100,"dotOut");
+    }
+    else { // OR, NOR, XOR
+      wires += wire(20,yA,102,yA,"wireA");
+      wires += wire(20,yB,102,yB,"wireB");
+      wires += dot(45,yA,"dotA");
+      wires += dot(45,yB,"dotB");
+      const shield = `M100,60 C122,72 122,128 100,140 C150,134 182,116 198,100 C182,84 150,66 100,60 Z`;
+      if(type === "XOR"){
+        body += `<path class="gate-body" d="M88,60 C110,72 110,128 88,140" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+      }
+      body += `<path class="gate-body" d="${shield}"/>`;
+      let outStart = 198;
+      if(type === "NOR"){
+        body += `<circle class="bubble" cx="208" cy="100" r="10"/>`;
+        outStart = 218;
+      }
+      wires += wire(outStart,100,300,100,"wireOut");
+      wires += dot(255,100,"dotOut");
+    }
+
+    return `${wires}${body}${labels(twoIn)}`;
+  }
+
+  /* ---------------- simulator state ---------------- */
+  let currentGate = "AND";
+  let inputs = { A:0, B:0 };
+
+  const tabsEl = document.querySelector(".gate-tabs");
+  const svgEl = document.getElementById("gateSvg");
+  const switchesEl = document.getElementById("switches");
+  const exprBox = document.getElementById("exprBox");
+  const descBox = document.getElementById("descBox");
+  const truthTable = document.getElementById("truthTable");
+
+  function buildTabs(){
+    tabsEl.innerHTML = ORDER.map(t =>
+      `<button class="gate-tab" role="tab" data-gate="${t}" aria-pressed="${t===currentGate}">${t}</button>`
+    ).join("");
+    tabsEl.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        currentGate = btn.dataset.gate;
+        inputs = { A:0, B:0 };
+        renderAll();
+      });
+    });
+  }
+
+  function renderSvg(){
+    svgEl.innerHTML = svgFor(currentGate);
+  }
+
+  function renderSwitches(){
+    const g = GATES[currentGate];
+    const keys = g.inputs === 1 ? ["A"] : ["A","B"];
+    switchesEl.innerHTML = keys.map(k =>
+      `<div class="switch">
+         <span class="lbl">Input ${k}</span>
+         <button data-key="${k}" data-on="${inputs[k]===1}">${inputs[k]}</button>
+       </div>`
+    ).join("");
+    switchesEl.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const k = btn.dataset.key;
+        inputs[k] = inputs[k] ? 0 : 1;
+        renderAll();
+      });
+    });
+  }
+
+  function currentOutput(){
+    const g = GATES[currentGate];
+    return g.fn(inputs.A, g.inputs===2 ? inputs.B : undefined);
+  }
+
+  function updateWireColors(){
+    const g = GATES[currentGate];
+    const out = currentOutput();
+    const setOn = (id, on) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.toggle("on", !!on);
+    };
+    setOn("wireA", inputs.A);
+    setOn("dotA", inputs.A);
+    if(g.inputs===2){
+      setOn("wireB", inputs.B);
+      setOn("dotB", inputs.B);
+    }
+    setOn("wireOut", out);
+    setOn("dotOut", out);
+  }
+
+  function renderExpr(){
+    const g = GATES[currentGate];
+    const out = currentOutput();
+    exprBox.innerHTML = `
+      <div class="row"><span class="k">Logic notation</span><span>${g.logic}</span></div>
+      <div class="row"><span class="k">Boolean algebra</span><span>${g.bool}</span></div>
+      <div class="row"><span class="k">Current output</span><span><strong>X = ${out}</strong></span></div>
+    `;
+    descBox.innerHTML = g.desc;
+  }
+
+  function allCombos(nInputs){
+    if(nInputs === 1) return [[0],[1]];
+    return [[0,0],[0,1],[1,0],[1,1]];
+  }
+
+  function renderTruth(){
+    const g = GATES[currentGate];
+    const rows = allCombos(g.inputs);
+    const head = g.inputs===1
+      ? `<tr><th>A</th><th>X</th></tr>`
+      : `<tr><th>A</th><th>B</th><th>X</th></tr>`;
+    const body = rows.map(r=>{
+      const out = g.inputs===1 ? g.fn(r[0]) : g.fn(r[0], r[1]);
+      const isActive = g.inputs===1
+        ? r[0]===inputs.A
+        : (r[0]===inputs.A && r[1]===inputs.B);
+      const cells = g.inputs===1
+        ? `<td>${r[0]}</td><td>${out}</td>`
+        : `<td>${r[0]}</td><td>${r[1]}</td><td>${out}</td>`;
+      return `<tr class="${isActive?'active':''}">${cells}</tr>`;
+    }).join("");
+    truthTable.innerHTML = head + body;
+  }
+
+  function renderAll(){
+    buildTabs();
+    renderSvg();
+    renderSwitches();
+    updateWireColors();
+    renderExpr();
+    renderTruth();
+  }
+
+  renderAll();
+
+  /* ---------------- reference grid ---------------- */
+  const refGrid = document.getElementById("refGrid");
+  refGrid.innerHTML = ORDER.map(t=>{
+    const g = GATES[t];
+    const rows = allCombos(g.inputs);
+    const head = g.inputs===1 ? `<tr><th>A</th><th>X</th></tr>` : `<tr><th>A</th><th>B</th><th>X</th></tr>`;
+    const body = rows.map(r=>{
+      const out = g.inputs===1 ? g.fn(r[0]) : g.fn(r[0], r[1]);
+      const cells = g.inputs===1 ? `<td>${r[0]}</td><td>${out}</td>` : `<td>${r[0]}</td><td>${r[1]}</td><td>${out}</td>`;
+      return `<tr>${cells}</tr>`;
+    }).join("");
+    return `
+      <div class="card">
+        <h3>${t}</h3>
+        <div class="sub">${g.inputs} input${g.inputs>1?'s':''}</div>
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${t} gate symbol">${svgFor(t)}</svg>
+        <p>${g.desc}</p>
+        <table class="truth">${head}${body}</table>
+        <div class="boolean">${g.bool} &nbsp;·&nbsp; ${g.logic}</div>
+      </div>
+    `;
+  }).join("");
+
+  /* ---------------- practice quiz ---------------- */
+  const quizGateName = document.getElementById("quizGateName");
+  const quizInputs = document.getElementById("quizInputs");
+  const quizScore = document.getElementById("quizScore");
+  const quizFeedback = document.getElementById("quizFeedback");
+  const ans0 = document.getElementById("ans0");
+  const ans1 = document.getElementById("ans1");
+  const quizNext = document.getElementById("quizNext");
+
+  let score = { correct:0, total:0 };
+  let quizState = null;
+
+  function newQuestion(){
+    const type = ORDER[Math.floor(Math.random()*ORDER.length)];
+    const g = GATES[type];
+    const a = Math.round(Math.random());
+    const b = Math.round(Math.random());
+    const correct = g.inputs===1 ? g.fn(a) : g.fn(a,b);
+    quizState = { type, a, b, correct, answered:false };
+
+    quizGateName.textContent = `${type} gate`;
+    quizInputs.innerHTML = g.inputs===1
+      ? `A = <span class="val">${a}</span>`
+      : `A = <span class="val">${a}</span> &nbsp; B = <span class="val">${b}</span>`;
+    quizFeedback.textContent = "";
+    quizFeedback.className = "quiz-feedback";
+    ans0.disabled = false; ans1.disabled = false;
+    quizNext.disabled = true;
+  }
+
+  function answer(val){
+    if(quizState.answered) return;
+    quizState.answered = true;
+    ans0.disabled = true; ans1.disabled = true;
+    quizNext.disabled = false;
+
+    score.total++;
+    const g = GATES[quizState.type];
+    if(val === quizState.correct){
+      score.correct++;
+      quizFeedback.textContent = `Correct — ${g.logic.replace('A',quizState.a).replace('B',quizState.b)} gives X = ${quizState.correct}.`;
+      quizFeedback.className = "quiz-feedback correct";
+    } else {
+      quizFeedback.textContent = `Not quite — the correct output is ${quizState.correct}. ${g.desc.replace(/<\/?strong>/g,'')}`;
+      quizFeedback.className = "quiz-feedback wrong";
+    }
+    quizScore.textContent = `${score.correct} / ${score.total} correct`;
+  }
+
+  ans0.addEventListener("click", ()=>answer(0));
+  ans1.addEventListener("click", ()=>answer(1));
+  quizNext.addEventListener("click", newQuestion);
+
+  newQuestion();
+
+  /* ---------------- theme toggle (light / dark) ---------------- */
+  const root = document.documentElement;
+  const themeToggle = document.getElementById("themeToggle");
+  const themeKnob = document.getElementById("themeKnob");
+
+  function applyTheme(mode){
+    if(mode === "dark"){
+      root.setAttribute("data-theme","dark");
+      themeToggle.setAttribute("aria-pressed","true");
+      themeKnob.textContent = "☾";
+    } else {
+      root.setAttribute("data-theme","light");
+      themeToggle.setAttribute("aria-pressed","false");
+      themeKnob.textContent = "☀";
+    }
+  }
+
+  let stored = null;
+  try{ stored = localStorage.getItem("logic-gates-theme"); }catch(e){ stored = null; }
+
+  if(stored === "dark" || stored === "light"){
+    applyTheme(stored);
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
+  }
+
+  themeToggle.addEventListener("click", ()=>{
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try{ localStorage.setItem("logic-gates-theme", next); }catch(e){ /* ignore */ }
+  });
+
+  /* ---------------- exam-style questions ---------------- */
+  const EXAM = [
+    {
+      marks:4,
+      q:"Look at the truth table below.",
+      scenario:`<table><tr><th>A</th><th>B</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td></tr></table>
+        <p>a &nbsp;Write down the logic expression represented by this table.<br>
+        b &nbsp;State which single logic gate this table describes.</p>`,
+      answer:`<div class="expr-line">a&nbsp; X = A XOR B &nbsp;&nbsp;(also correct: (A AND NOT B) OR (NOT A AND B))</div>
+        <div class="expr-line">b&nbsp; This is the XOR gate — the output is 1 only when the two inputs differ.</div>`
+    },
+    {
+      marks:6,
+      q:"A logic circuit has three inputs, A, B and C, and is built as follows: Gate 1 is an AND gate with inputs A and B. Gate 2 is an OR gate with inputs B and C. Gate 3 is an XOR gate with the outputs of Gate 1 and Gate 2 as its two inputs, producing output X.",
+      scenario:`<p>a &nbsp;Write a logic expression for X. [2]<br>
+        b &nbsp;Complete a truth table for all eight input combinations. [4]</p>`,
+      answer:`<div class="expr-line">a&nbsp; X = (A AND B) XOR (B OR C)</div>
+        <table class="truth"><tr><th>A</th><th>B</th><th>C</th><th>A AND B</th><th>B OR C</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr></table>`
+    },
+    {
+      marks:7,
+      q:"A greenhouse watering system uses a logic circuit with three sensor inputs, described below.",
+      scenario:`<table><tr><th>Parameter</th><th>Symbol</th><th>Value 0</th><th>Value 1</th></tr>
+        <tr><td>soil moisture</td><td>M</td><td>moisture &gt; 20%</td><td>moisture &lt;= 20%</td></tr>
+        <tr><td>light level</td><td>L</td><td>light &lt;= 800 lux</td><td>light &gt; 800 lux</td></tr>
+        <tr><td>air temperature</td><td>T</td><td>temperature &lt;= 30°C</td><td>temperature &gt; 30°C</td></tr></table>
+        <p>The pump switches on (output X = 1) if:<br>
+        either &nbsp;soil moisture &lt;= 20% AND air temperature &gt; 30°C<br>
+        or &nbsp;&nbsp;&nbsp;&nbsp;light level &gt; 800 lux AND soil moisture &lt;= 20%<br>
+        or &nbsp;&nbsp;&nbsp;&nbsp;air temperature &gt; 30°C AND light level &gt; 800 lux</p>
+        <p>a &nbsp;Write a logic expression for X, using M, L and T. [3]<br>
+        b &nbsp;Describe the logic circuit needed to implement this expression. [4]</p>`,
+      answer:`<div class="expr-line">a&nbsp; X = (M AND T) OR (L AND M) OR (T AND L)</div>
+        <p>b&nbsp; Three AND gates each take a pair of inputs: (M, T), (L, M) and (T, L).
+        Their three outputs then feed into two OR gates connected in sequence (the first ORs
+        two of the AND outputs, the second ORs that result with the third AND output) to
+        produce the final output X.</p>`
+    },
+    {
+      marks:3,
+      q:"Write down a logic expression for the following truth table.",
+      scenario:`<table><tr><th>A</th><th>B</th><th>C</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>0</td></tr></table>`,
+      answer:`<div class="expr-line">Only one row gives an output of 1: A = 1, B = 1, C = 0.</div>
+        <div class="expr-line">X = A AND B AND NOT C</div>`
+    },
+    {
+      marks:4,
+      q:"Write down a logic expression for the following truth table.",
+      scenario:`<table><tr><th>A</th><th>B</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td></tr></table>`,
+      answer:`<div class="expr-line">Three rows give an output of 1, so three terms are joined with OR:</div>
+        <div class="expr-line">(NOT A AND NOT B) OR (A AND NOT B) OR (A AND B)</div>
+        <p>This simplifies to: X = A OR NOT B</p>`
+    },
+    {
+      marks:2,
+      q:"State the single logic gate represented by the following truth table.",
+      scenario:`<table><tr><th>A</th><th>B</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td></tr></table>`,
+      answer:`<div class="expr-line">This is the NOR gate — the output is 1 only when neither input is 1.</div>`
+    },
+    {
+      marks:5,
+      q:"A logic circuit is represented by the expression: (A OR NOT B) AND (B NAND C)",
+      scenario:`<p>a &nbsp;Describe, in words, how this logic circuit is built from individual gates. [2]<br>
+        b &nbsp;Complete the truth table for A = 1, B = 0 and C = 1, and for A = 0, B = 1, C = 0. [3]</p>`,
+      answer:`<p>a&nbsp; One OR gate takes inputs A and NOT B. A separate NAND gate takes inputs B and C.
+        The outputs of the OR gate and the NAND gate then feed into a final AND gate, which produces
+        the output X.</p>
+        <table class="truth"><tr><th>A</th><th>B</th><th>C</th><th>A OR NOT B</th><th>B NAND C</th><th>X</th></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr></table>`
+    },
+    {
+      marks:3,
+      q:"Explain how a single NOT gate can be built using only a NAND gate.",
+      scenario:`<p>Show your reasoning using a truth table.</p>`,
+      answer:`<p>Connect both inputs of the NAND gate to the same signal, A, so the NAND gate's
+        two inputs are always equal.</p>
+        <table class="truth"><tr><th>A</th><th>A NAND A</th></tr>
+        <tr><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td></tr></table>
+        <p>The output is 1 when A is 0, and 0 when A is 1 — exactly the behaviour of a NOT gate.</p>`
+    },
+    {
+      marks:4,
+      q:"Show that the logic expression (A AND NOT B) OR (NOT A AND B) produces the same output as a single XOR gate.",
+      scenario:`<p>Complete a truth table for both expressions and compare the results.</p>`,
+      answer:`<table class="truth"><tr><th>A</th><th>B</th><th>A AND NOT B</th><th>NOT A AND B</th><th>Combined (OR)</th><th>A XOR B</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table>
+        <p>The "Combined" column matches the "A XOR B" column in every row, so the two expressions
+        are equivalent.</p>`
+    },
+    {
+      marks:8,
+      q:"A factory conveyor belt has a safety system with three sensor inputs, described below.",
+      scenario:`<table><tr><th>Parameter</th><th>Symbol</th><th>Value 0</th><th>Value 1</th></tr>
+        <tr><td>belt speed</td><td>S</td><td>speed &lt;= 2 m/s</td><td>speed &gt; 2 m/s</td></tr>
+        <tr><td>motor temperature</td><td>M</td><td>temperature &lt;= 70°C</td><td>temperature &gt; 70°C</td></tr>
+        <tr><td>load weight</td><td>W</td><td>weight &lt;= 500 kg</td><td>weight &gt; 500 kg</td></tr></table>
+        <p>The belt stops (output X = 1) if:<br>
+        either &nbsp;belt speed &gt; 2 m/s AND load weight &gt; 500 kg<br>
+        or &nbsp;&nbsp;&nbsp;&nbsp;motor temperature &gt; 70°C AND belt speed &lt;= 2 m/s<br>
+        or &nbsp;&nbsp;&nbsp;&nbsp;load weight &gt; 500 kg AND motor temperature &gt; 70°C</p>
+        <p>a &nbsp;Write a logic expression for X. [2]<br>
+        b &nbsp;Describe the logic circuit. [3]<br>
+        c &nbsp;Complete a truth table for all eight input combinations. [3]</p>`,
+      answer:`<div class="expr-line">a&nbsp; X = (S AND W) OR (M AND NOT S) OR (W AND M)</div>
+        <p>b&nbsp; Three AND gates produce the terms (S AND W), (M AND NOT S — needing a NOT gate on S first)
+        and (W AND M). Two OR gates then combine the three AND outputs into the final output X.</p>
+        <table class="truth"><tr><th>S</th><th>M</th><th>W</th><th>X</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr></table>`
+    }
+  ];
+
+  const examList = document.getElementById("examList");
+  examList.innerHTML = EXAM.map((item, i)=>`
+    <div class="exam-item" id="exam-${i}">
+      <button class="exam-q" data-idx="${i}">
+        <span><span class="qnum">Q${i+1}</span><span class="qtext">${item.q}</span></span>
+        <span class="marks">[${item.marks}]</span>
+      </button>
+      <div class="exam-body">
+        <div class="exam-scenario">${item.scenario}</div>
+        <button class="reveal-btn" data-idx="${i}">Show answer</button>
+        <div class="exam-answer" id="exam-answer-${i}">${item.answer}</div>
+      </div>
+    </div>
+  `).join("");
+
+  examList.querySelectorAll(".exam-q").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const item = document.getElementById(`exam-${btn.dataset.idx}`);
+      item.classList.toggle("open");
+    });
+  });
+  examList.querySelectorAll(".reveal-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = btn.dataset.idx;
+      const ans = document.getElementById(`exam-answer-${idx}`);
+      const shown = ans.classList.toggle("shown");
+      btn.textContent = shown ? "Hide answer" : "Show answer";
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
