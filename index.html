@@ -16,6 +16,138 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
+/* ---------- Universal Academic Footer ---------- */
+.site-footer {
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 3.5rem 1.5rem 1.5rem;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin-top: 4rem;
+}
+
+.footer-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+}
+
+.footer-col h3.footer-brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.footer-col h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #86868b;
+  margin-bottom: 1rem;
+}
+
+.footer-desc {
+  font-size: 0.88rem;
+  color: #6e6e73;
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.footer-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #34c759;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #34c759;
+  border-radius: 50%;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #424245;
+  font-size: 0.88rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #0071e3;
+}
+
+.footer-contact {
+  font-size: 0.88rem;
+  color: #6e6e73;
+  margin-bottom: 0.5rem;
+}
+
+.footer-contact a {
+  color: #0071e3;
+  text-decoration: none;
+}
+
+.footer-contact a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  max-width: 1080px;
+  margin: 2.5rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #86868b;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.back-to-top {
+  text-decoration: none;
+  color: #86868b;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.back-to-top:hover {
+  color: #1d1d1f;
+}
+
+/* Tablet & Mobile Screens */
+@media (max-width: 820px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+}
+
   /* ---------- tokens ---------- */
   :root{
     --paper:#F3F5F9;
@@ -349,6 +481,62 @@
     position:absolute; width:1px; height:1px; padding:0; margin:-1px;
     overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
   }
+  /* ---------- footer 2---------- */
+  <footer class="site-footer">
+  <div class="footer-container">
+    <!-- Brand & Bio Column -->
+    <div class="footer-col">
+      <h3 class="footer-brand">Tr. Wai Lin Htet</h3>
+      <p class="footer-desc">
+        Computer Science Educator &amp; Academic Researcher. Empowering students in Cambridge (IGCSE / A-Level) and Canadian OSSD frameworks.
+      </p>
+      <div class="footer-status">
+        <span class="status-dot"></span> Available for Academic Inquiries
+      </div>
+    </div>
+
+    <!-- Quick Links Column -->
+    <div class="footer-col">
+      <h4>Academic Portals</h4>
+      <ul class="footer-links">
+        <li><a href="https://wai-lin-htet.github.io/wailinhtet-academic-site/">Academic Home</a></li>
+        <li><a href="https://wai-lin-htet.github.io/wailinhtet-academic-site/about.html">About &amp; Credentials</a></li>
+        <li><a href="https://wai-lin-htet.github.io/wailinhtet-academic-site/my_course.html">Courses &amp; Notes</a></li>
+        <li><a href="https://wai-lin-htet.github.io/wailinhtet-academic-site/pastpaper_index.html">Past Papers Portal</a></li>
+      </ul>
+    </div>
+
+    <!-- Learning Tools Column -->
+    <div class="footer-col">
+      <h4>Interactive Revision Tools</h4>
+      <ul class="footer-links">
+        <li><a href="https://wai-lin-htet.github.io/CS_IGCSE/#home">Cambridge IGCSE CS Hub</a></li>
+        <li><a href="https://wai-lin-htet.github.io/CS-LogicGate/">Interactive Logic Gates Simulator</a></li>
+        <li><a href="https://wai-lin-htet.github.io/wailinhtet-academic-site/CS_Paper2_rev2.html">Paper 2 Problem Solving Guide</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact Column -->
+    <div class="footer-col">
+      <h4>Get in Touch</h4>
+      <p class="footer-contact">📍 Yangon, Myanmar</p>
+      <p class="footer-contact">
+        ✉️ <a href="mailto:tr.wailinhtet@gmail.com">tr.wailinhtet@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Copyright Bar -->
+  <div class="footer-bottom">
+    <p>&copy; <span id="currentYear"></span> Wai Lin Htet. All rights reserved.</p>
+    <a href="#top" class="back-to-top">Back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+  // Automatic current year update
+  document.getElementById('currentYear').textContent = new Date().getFullYear();
+</script>
 
   /* ---------- classroom-monitor sizing ---------- */
   /* Base type scale raised ~30% so text is legible on a projector or shared monitor. */
